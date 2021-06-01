@@ -1,5 +1,17 @@
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
+const deepCopy = (arr) => {
+  let copy = [];
+  arr.forEach(elem => {
+    if(Array.isArray(elem)){
+      copy.push(deepCopy(elem))
+    }else{
+        copy.push(elem)
+    }
+  })
+  return copy;
+}
+
 var cy = cytoscape({
     container: document.getElementById('cy'),
   
@@ -34,17 +46,26 @@ var cy = cytoscape({
           { data: { id: '1' } },
           { data: { id: '2' } },
           { data: { id: '3' } },
-          { data: { id: '4' } }
+          { data: { id: '4' } },
+          { data: { id: '5' } },
+          { data: { id: '6' } },
+          { data: { id: '7' } },
+          { data: { id: '8' } },
+          { data: { id: '9' } },
         ],
   
         edges: [
-          { data: { id: '04', source: '0', target: '4' } },
           { data: { id: '01', source: '0', target: '1' } },
-          { data: { id: '14', source: '1', target: '4' } },
+          { data: { id: '06', source: '0', target: '6' } },
+          { data: { id: '07', source: '0', target: '7' } },
           { data: { id: '12', source: '1', target: '2' } },
-          { data: { id: '24', source: '2', target: '4' } },
+          { data: { id: '56', source: '5', target: '6' } },
+          { data: { id: '39', source: '3', target: '9' } },
           { data: { id: '23', source: '2', target: '3' } },
-          { data: { id: '34', source: '3', target: '4' } }
+          { data: { id: '34', source: '3', target: '4' } },
+          { data: { id: '45', source: '4', target: '5' } },
+          { data: { id: '78', source: '7', target: '8' } },
+          { data: { id: '89', source: '8', target: '9' } },
         ]
       },
   
@@ -61,26 +82,35 @@ var cy = cytoscape({
   
   var vertices = cy.nodes();
 
+  var originalAdjacencyMatrix = [];
   var adjacencyMatrix = [];
-  var auxMatrix = [];
+  var bfsMatrix = [];
+  var baseMatrix = [];
+  // var auxMatrix = [];
 
   for (var i = 0; i < vertices.length; i++){
-    adjacencyMatrix[i] = new Array(vertices.length).fill(0);
-    adjacencyMatrix[i][i] = 1;
-    auxMatrix = adjacencyMatrix;
+    originalAdjacencyMatrix[i] = new Array(vertices.length).fill(0);
+    originalAdjacencyMatrix[i][i] = 1;
+    adjacencyMatrix = deepCopy(originalAdjacencyMatrix);
+    bfsMatrix = deepCopy(originalAdjacencyMatrix);
+    baseMatrix = deepCopy(originalAdjacencyMatrix);
+    // auxMatrix = originalAdjacencyMatrix;
   }
   
   for (var i = 0; i < vertices.length; i++){
     // console.log("#oi", vertices[i].id())
     var edges = cy.edges(`[source = '${vertices[i].id()}']`);
+    console.log("edges: ", edges)
     for (var j = 0; j < edges.length; j++){
       // console.log("### oi : ",edges[j].id());
+      originalAdjacencyMatrix[parseInt(edges[j].id()[0])][parseInt(edges[j].id()[1])] = 1;
+      originalAdjacencyMatrix[parseInt(edges[j].id()[1])][parseInt(edges[j].id()[0])] = 1;
       adjacencyMatrix[parseInt(edges[j].id()[0])][parseInt(edges[j].id()[1])] = 1;
       adjacencyMatrix[parseInt(edges[j].id()[1])][parseInt(edges[j].id()[0])] = 1;
     }
   }
   
-  console.log("###", adjacencyMatrix);
+  // console.log("###", originalAdjacencyMatrix);
 
   var isAllOne = true;
   var i = 0;
@@ -88,10 +118,10 @@ var cy = cytoscape({
     myDiv.innerHTML = "Verificando se o grafo é completo...";
     if( i < vertices.length ){
       vertices[i].addClass('highlighted');
-      console.log("pulou!!!");
+      // console.log("pulou!!!");
       for (var j = 0; j < vertices.length; j++){
-        console.log("&&&: ", i, " ", j);
-        if (auxMatrix[i][j] != 1){
+        // console.log("&&&: ", i, " ", j);
+        if (adjacencyMatrix[i][j] != 1){
           isAllOne = false;
           myDiv.innerHTML = "Grafo não é completo!";
           break;
@@ -104,42 +134,73 @@ var cy = cytoscape({
     }
   }
 
-  var squareGraph = async function(){
-    //roda bfs para todo vértice v, e adiciona à lista de adjacencia os vértices que possuam distancia 2 a v
-    
-  }
+  // async function squareGraph(){
+  //   // await delay(4000);
+  //   // var auxMatrix2 = deepCopy(adjacencyMatrix);
+  //   // console.log("auxmatrix2: ", auxMatrix2);
+  //   // await delay(2000);
+  //   //precisamos checar cada possivel aresta do grafo, e adicionamos os adjacentes a cada um dos endpoints das arestas à adjacencia
+  //   for (var i = 0; i < vertices.length; i++){
+  //     for (var j = 0; j < vertices.length; j++){
+  //       if (adjacencyMatrix[i][j] == 1 && i != j){
+  //         console.log("###: ",i, " ", j, adjacencyMatrix[i][j])
+  //         for (var aux = 0; aux < vertices.length; aux++){
+  //           if (adjacencyMatrix[i][aux] == 1)
+  //             adjacencyMatrix[j][aux] = 1;
+  //         }
+  //         for (var aux = 0; aux < vertices.length; aux++){
+  //           if (adjacencyMatrix[j][aux] == 1)
+  //             adjacencyMatrix[i][aux] = 1;
+  //         }
+  //       }
+  //     }
+  //   }
+  //   // console.log("auxmatrix2: ", auxMatrix2);
+  //   // return auxMatrix2;
+  // }
 
-  var seidel = async function(){
+  
+
+  function seidel(){
     isAllOne = true;
     i = 0;
-    auxMatrix = adjacencyMatrix;
-    console.log("adj: ", auxMatrix)
-    verifyAllOne();
-    await delay(4000);
+    // var auxMatrix = adjacencyMatrix;
+    // console.log("adj: ", auxMatrix)
+    // verifyAllOne();
     //if isAllOne != true
     myDiv.innerHTML = "Computando grafo quadrado...";
     auxMatrix = adjacencyMatrix;
-    squareGraph();
+
+    console.log("antes do squareGraph: ", adjacencyMatrix);
+    
+    //squareGraph();
+    for (var i = 0; i < adjacencyMatrix.length; i++){
+      for (var j = 0; j < adjacencyMatrix.length; j++){
+        if (adjacencyMatrix[i][j] == 1){
+          // console.log("###: ",i, " ", j, adjacencyMatrix[i][j])
+          for (var aux = 0; aux < adjacencyMatrix.length; aux++){
+            if (adjacencyMatrix[i][aux] == 1){
+              adjacencyMatrix[j][aux] = 1;
+            }
+          }
+          for (var aux = 0; aux < adjacencyMatrix.length; aux++){
+            if (adjacencyMatrix[j][aux] == 1){
+              adjacencyMatrix[i][aux] = 1;
+            }
+          }
+        }
+      }
+    }
+    
+    console.log("depois do squareGraph: ", adjacencyMatrix);
+    //then call seidel for squared graph
     console.log("### TESTISSIMO: ", isAllOne)
+
+
+    //
+    //return statement
   }
-  
+
+
+
   seidel();
-
-  // var bfs = cy.elements().bfs('#0', function(){}, true);
-  
-  // // console.log("###", cy.nodes());
-  // // console.log("###2", cy.edges("[source = 'a']"));
-
-  // var i = 0;
-  // var highlightNextEle = function(){
-  //   if( i < vertices.length ){
-  //     vertices[i].addClass('highlighted');
-  
-  //     i++;
-  //     setTimeout(highlightNextEle, 1000);
-  //   }
-  // };
-  
-  // // kick off first highlight
-  // highlightNextEle();
-  
