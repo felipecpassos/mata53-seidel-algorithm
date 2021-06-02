@@ -1,11 +1,5 @@
   const delay = ms => new Promise(res => setTimeout(res, ms));
 
-  var myDiv = document.getElementById("divId");
-    
-  var vertices = cy.nodes();
-
-  var originalAdjacencyMatrix = new Array(vertices.length);
-
   const deepCopy = (arr) => {
     let copy = [];
     arr.forEach(elem => {
@@ -109,6 +103,12 @@
         padding: 10
       }
   });
+
+  var myDiv = document.getElementById("divId");
+  
+  var vertices = cy.nodes();
+
+  var originalAdjacencyMatrix = new Array(vertices.length);
 
   async function seidel(adjacencyMatrix){
     console.log("delaying...");
@@ -240,6 +240,7 @@
   var start = async function() {
     for (var i = 0; i < vertices.length; i++){
       originalAdjacencyMatrix[i] = new Array(vertices.length).fill(0);
+      // originalAdjacencyMatrix[i][i] = 1;
     }
     
     for (var i = 0; i < vertices.length; i++){
@@ -252,11 +253,13 @@
 
     var adjacencyMatrix = [];
     adjacencyMatrix = deepCopy(originalAdjacencyMatrix);
+    // console.log("FINAL: ", seidel(adjacencyMatrix));
     myDiv.innerHTML = "Matriz de adjacencias original:";
     myDiv.style.color = "blue";
     var distanceMatrix = [];
     createTable(originalAdjacencyMatrix);
     distanceMatrix = await seidel(adjacencyMatrix);
+    // myDiv.remove();
     await delay(2000);
     deleteTable();
     createTable(distanceMatrix);
