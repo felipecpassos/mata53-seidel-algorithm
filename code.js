@@ -128,6 +128,7 @@ var cy = cytoscape({
     console.log("delaying...");
     await delay(5000);
     myDiv.innerHTML = "Computando matrizes dos grafos quadrados...";
+    myDiv.style.color = "red";
 
     var zMatrix = Array(vertices.length)
     for (var i = 0; i < vertices.length; i++){
@@ -269,6 +270,7 @@ var cy = cytoscape({
     adjacencyMatrix = deepCopy(originalAdjacencyMatrix);
     // console.log("FINAL: ", seidel(adjacencyMatrix));
     myDiv.innerHTML = "Matriz de adjacencias original:";
+    myDiv.style.color = "blue";
     var distanceMatrix = [];
     createTable(originalAdjacencyMatrix);
     distanceMatrix = await seidel(adjacencyMatrix);
@@ -277,6 +279,7 @@ var cy = cytoscape({
     deleteTable();
     createTable(distanceMatrix);
     myDiv.innerHTML = "Matriz de distâncias calculada!";
+    myDiv.style.color = "green";
   }
 
   start();
