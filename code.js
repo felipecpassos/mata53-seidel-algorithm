@@ -21,7 +21,6 @@ function multiply(a, b) {
     for (var c = 0; c < bNumCols; ++c) {
       m[r][c] = 0;             // initialize the current cell
       for (var i = 0; i < aNumCols; ++i) {
-        console.log("testao", b[i][c]);
         m[r][c] += a[r][i] * b[i][c];
       }
     }
@@ -103,8 +102,6 @@ var cy = cytoscape({
   var bfsMatrix = [];
   var baseMatrix = [];
   
-  // console.log("###", originalAdjacencyMatrix);
-
   var isAllOne = true;
   var i = 0;
   var verifyAllOne = function(adjacencyMatrix){
@@ -112,7 +109,6 @@ var cy = cytoscape({
     for (var i = 0; i < vertices.length; i++){
     // if( i < vertices.length ){
       vertices[i].addClass('highlighted');
-      // console.log("pulou!!!");
       for (var j = 0; j < vertices.length; j++){
         if (isAllOne != false && i!=j){
           // setTimeout(verifyAllOne, 1000);
@@ -122,7 +118,6 @@ var cy = cytoscape({
             break;
           }
         }
-        // console.log("&&&: ", i, " ", j);
       }
     }
   }
@@ -130,72 +125,108 @@ var cy = cytoscape({
   
 
   function seidel(adjacencyMatrix){
-    isAllOne = true;
-    verifyAllOne(adjacencyMatrix);
     
-    if (isAllOne)
-      return adjacencyMatrix;
+    // isAllOne = true;
+    // verifyAllOne(adjacencyMatrix);
+    // if (isAllOne)
+    //   return adjacencyMatrix;
+
     myDiv.innerHTML = "Computando grafo quadrado...";
 
-    // console.log("antes do squareGraph: ", adjacencyMatrix);
     
-    var auxMatrix = Array(vertices.length)
+    var zMatrix = Array(vertices.length)
     for (var i = 0; i < vertices.length; i++){
-      auxMatrix[i] = new Array(vertices.length).fill(0);
+      zMatrix[i] = new Array(vertices.length).fill(0);
     }
 
-    var auxMatrix2 = Array(vertices.length)
+    var bMatrix = Array(vertices.length)
     for (var i = 0; i < vertices.length; i++){
-      auxMatrix2[i] = new Array(vertices.length).fill(0);
+      bMatrix[i] = new Array(vertices.length).fill(0);
     }
 
     //squareGraph();
 
-    // for (var r = 0; r < vertices.length; ++r) {
-    //   auxMatrix[r] = new Array(vertices.length); // initialize the current row
-    //   for (var c = 0; c < vertices.length; ++c) {
-    //     auxMatrix[r][c] = 0;             // initialize the current cell
-    //     for (var i = 0; i < vertices.length; ++i) {
-    //       auxMatrix[r][c] += adjacencyMatrix[r][i] * adjacencyMatrix[i][c];
+    //calculate z
+    for (var r = 0; r < vertices.length; ++r) {
+      zMatrix[r] = new Array(vertices.length); // initialize the current row
+      for (var c = 0; c < vertices.length; ++c) {
+        zMatrix[r][c] = 0;             // initialize the current cell
+        for (var i = 0; i < vertices.length; ++i) {
+          zMatrix[r][c] += adjacencyMatrix[r][i] * adjacencyMatrix[i][c];
+        }
+      }
+    }
+
+    //calculate b
+    for (var i = 0; i < adjacencyMatrix.length; i++){
+      for (var j = 0; j < adjacencyMatrix.length; j++){
+        if (i!=j &&(adjacencyMatrix[i][j] == 1 || zMatrix[i][j] > 0))
+         bMatrix[i][j] = 1;
+        else
+         bMatrix[i][j] = 0;
+      }
+    }
+
+    // for (var i = 0; i < adjacencyMatrix.length; i++){
+    //   for (var j = 0; j < adjacencyMatrix.length; j++){
+    //     if (adjacencyMatrix[i][j] == 1 && i!=j){
+    //       for (var aux = 0; aux < adjacencyMatrix.length; aux++){
+    //         if (adjacencyMatrix[i][aux] == 1){
+    //           zMatrix[j][aux] = 1;
+    //         }
+    //       }
+    //       for (var aux = 0; aux < adjacencyMatrix.length; aux++){
+    //         if (adjacencyMatrix[j][aux] == 1){
+    //           zMatrix[i][aux] = 1;
+    //         }
+    //       }
     //     }
     //   }
     // }
 
-    // for (var i = 0; i < adjacencyMatrix.length; i++){
-    //   for (var j = 0; j < adjacencyMatrix.length; j++){
-    //     if (i!=j &&(adjacencyMatrix[i][j] == 1 || auxMatrix[i][j] > 0))
-    //     auxMatrix2[i][j] = 1;
-    //     else
-    //     auxMatrix2[i][j] = 0;
-    //   }
-    // }
-    // console.log("auxMatrix2: ", auxMatrix)
-
+    var auxBool = false;
     for (var i = 0; i < adjacencyMatrix.length; i++){
       for (var j = 0; j < adjacencyMatrix.length; j++){
-        if (adjacencyMatrix[i][j] == 1 && i!=j){
-          // console.log("###: ",i, " ", j)
-          for (var aux = 0; aux < adjacencyMatrix.length; aux++){
-            if (adjacencyMatrix[i][aux] == 1){
-              auxMatrix[j][aux] = 1;
-            }
-          }
-          for (var aux = 0; aux < adjacencyMatrix.length; aux++){
-            if (adjacencyMatrix[j][aux] == 1){
-              auxMatrix[i][aux] = 1;
-            }
-          }
+        if(bMatrix[i][j] != 1 && i!=j){
+          auxBool = true;
         }
       }
     }
-    
+
+    var d2Matrix = Array(vertices.length)
+    for (var i = 0; i < vertices.length; i++){
+      d2Matrix[i] = new Array(vertices.length).fill(0);
+    }
+
+    //if bij = 1 for all i!=j then return nxn matrix D = 2B - A
+    if (auxBool == false){
+      for (var i = 0; i < adjacencyMatrix.length; i++){
+        for (var j = 0; j < adjacencyMatrix.length; j++){
+          if(i!=j)
+            d2Matrix[i][j] = 2;
+        }
+      }
+  
+      for (var i = 0; i < adjacencyMatrix.length; i++){
+        for (var j = 0; j < adjacencyMatrix.length; j++){
+          d2Matrix[i][j] = d2Matrix[i][j] - adjacencyMatrix[i][j];
+        }
+      }
+
+      // console.log("zMatrix: ", [...zMatrix]);
+      // console.log("bMatrix: ", [...bMatrix]);
+      // console.log("adjacency: ", [...adjacencyMatrix])
+      // console.log("d2Matrix: ", [...d2Matrix]);
+      console.log("d2: ", d2Matrix)
+      return d2Matrix;
+    }
+
     var returnMatrix = Array(vertices.length)
     for (var i = 0; i < vertices.length; i++){
       returnMatrix[i] = new Array(vertices.length).fill(0);
     }
 
-    returnMatrix = seidel(auxMatrix);
-    // console.log("return matrix: ",returnMatrix);
+    returnMatrix = seidel(bMatrix);
 
     var xMatrix = Array(vertices.length)
     for (var i = 0; i < vertices.length; i++){
@@ -230,20 +261,22 @@ var cy = cytoscape({
     
     for (var i = 0; i < vertices.length; i++){
       for (var j = 0; j < vertices.length; j++){
+        if(i!=j){
           if ( xMatrix[i][j] >= (returnMatrix[i][j] * degree[j]) )
             dMatrix[i][j] = 2 * returnMatrix[i][j];
           else
             dMatrix[i][j] = (2 * returnMatrix[i][j]) - 1;                 
+        }
       }
     }
     
-    console.log("###return ", returnMatrix);
-    console.log("###xMatrix ", xMatrix);
-    console.log("###dmatrix ", dMatrix);
+    // console.log("###return ", returnMatrix);
+    // console.log("###xMatrix ", xMatrix);
+    // console.log("###dmatrix ", dMatrix);
 
-
+    console.log("returnMatrix: ", returnMatrix)
+    console.log("dmatrix: ", dMatrix)
     return dMatrix;
-    // console.log("depois do squareGraph: ", auxMatrix);
     //then call seidel for squared graph
 
     //return statement
@@ -256,7 +289,6 @@ var cy = cytoscape({
     }
     
     for (var i = 0; i < vertices.length; i++){
-      // console.log("#oi", vertices[i].id())
       var edges = cy.edges(`[source = '${vertices[i].id()}']`);
       for (var j = 0; j < edges.length; j++){
         originalAdjacencyMatrix[parseInt(edges[j].id()[0])][parseInt(edges[j].id()[1])] = 1;
@@ -266,8 +298,7 @@ var cy = cytoscape({
 
     var adjacencyMatrix = [];
     adjacencyMatrix = deepCopy(originalAdjacencyMatrix);
-    // console.log("original: ", originalAdjacencyMatrix)
-    seidel(adjacencyMatrix);
+    console.log("FINAL: ", seidel(adjacencyMatrix));
 
   }
 
