@@ -105,7 +105,7 @@ var cy = cytoscape({
   var isAllOne = true;
   var i = 0;
   var verifyAllOne = function(adjacencyMatrix){
-    myDiv.innerHTML = "Verificando se o grafo é completo...";
+    // myDiv.innerHTML = "Verificando se o grafo é completo...";
     for (var i = 0; i < vertices.length; i++){
     // if( i < vertices.length ){
       vertices[i].addClass('highlighted');
@@ -114,7 +114,7 @@ var cy = cytoscape({
           // setTimeout(verifyAllOne, 1000);
           if (adjacencyMatrix[i][j] != 1){
             isAllOne = false;
-            myDiv.innerHTML = "Grafo não é completo!";
+            // myDiv.innerHTML = "Grafo não é completo!";
             break;
           }
         }
@@ -124,16 +124,11 @@ var cy = cytoscape({
 
   
 
-  function seidel(adjacencyMatrix){
-    
-    // isAllOne = true;
-    // verifyAllOne(adjacencyMatrix);
-    // if (isAllOne)
-    //   return adjacencyMatrix;
+  async function seidel(adjacencyMatrix){
+    console.log("delaying...");
+    await delay(5000);
+    myDiv.innerHTML = "Computando matrizes dos grafos quadrados...";
 
-    myDiv.innerHTML = "Computando grafo quadrado...";
-
-    
     var zMatrix = Array(vertices.length)
     for (var i = 0; i < vertices.length; i++){
       zMatrix[i] = new Array(vertices.length).fill(0);
@@ -145,7 +140,6 @@ var cy = cytoscape({
     }
 
     //squareGraph();
-
     //calculate z
     for (var r = 0; r < vertices.length; ++r) {
       zMatrix[r] = new Array(vertices.length); // initialize the current row
@@ -156,7 +150,6 @@ var cy = cytoscape({
         }
       }
     }
-
     //calculate b
     for (var i = 0; i < adjacencyMatrix.length; i++){
       for (var j = 0; j < adjacencyMatrix.length; j++){
@@ -166,23 +159,6 @@ var cy = cytoscape({
          bMatrix[i][j] = 0;
       }
     }
-
-    // for (var i = 0; i < adjacencyMatrix.length; i++){
-    //   for (var j = 0; j < adjacencyMatrix.length; j++){
-    //     if (adjacencyMatrix[i][j] == 1 && i!=j){
-    //       for (var aux = 0; aux < adjacencyMatrix.length; aux++){
-    //         if (adjacencyMatrix[i][aux] == 1){
-    //           zMatrix[j][aux] = 1;
-    //         }
-    //       }
-    //       for (var aux = 0; aux < adjacencyMatrix.length; aux++){
-    //         if (adjacencyMatrix[j][aux] == 1){
-    //           zMatrix[i][aux] = 1;
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
 
     var auxBool = false;
     for (var i = 0; i < adjacencyMatrix.length; i++){
@@ -212,12 +188,7 @@ var cy = cytoscape({
           d2Matrix[i][j] = d2Matrix[i][j] - adjacencyMatrix[i][j];
         }
       }
-
-      // console.log("zMatrix: ", [...zMatrix]);
-      // console.log("bMatrix: ", [...bMatrix]);
-      // console.log("adjacency: ", [...adjacencyMatrix])
-      // console.log("d2Matrix: ", [...d2Matrix]);
-      console.log("d2: ", d2Matrix)
+      
       return d2Matrix;
     }
 
@@ -226,7 +197,10 @@ var cy = cytoscape({
       returnMatrix[i] = new Array(vertices.length).fill(0);
     }
 
-    returnMatrix = seidel(bMatrix);
+    deleteTable();
+    createTable(bMatrix);
+
+    returnMatrix = await seidel(bMatrix);
 
     var xMatrix = Array(vertices.length)
     for (var i = 0; i < vertices.length; i++){
@@ -269,20 +243,15 @@ var cy = cytoscape({
         }
       }
     }
-    
-    // console.log("###return ", returnMatrix);
-    // console.log("###xMatrix ", xMatrix);
-    // console.log("###dmatrix ", dMatrix);
 
-    console.log("returnMatrix: ", returnMatrix)
-    console.log("dmatrix: ", dMatrix)
+    // createTable(dMatrix);
     return dMatrix;
     //then call seidel for squared graph
 
     //return statement
   }
 
-  var start = function() {
+  var start = async function() {
     for (var i = 0; i < vertices.length; i++){
       originalAdjacencyMatrix[i] = new Array(vertices.length).fill(0);
       // originalAdjacencyMatrix[i][i] = 1;
@@ -298,8 +267,46 @@ var cy = cytoscape({
 
     var adjacencyMatrix = [];
     adjacencyMatrix = deepCopy(originalAdjacencyMatrix);
-    console.log("FINAL: ", seidel(adjacencyMatrix));
-
+    // console.log("FINAL: ", seidel(adjacencyMatrix));
+    myDiv.innerHTML = "Matriz de adjacencias original:";
+    var distanceMatrix = [];
+    createTable(originalAdjacencyMatrix);
+    distanceMatrix = await seidel(adjacencyMatrix);
+    // myDiv.remove();
+    await delay(2000);
+    deleteTable();
+    createTable(distanceMatrix);
+    myDiv.innerHTML = "Matriz de distâncias calculada!";
   }
 
   start();
+
+
+  function deleteTable(){
+    var table = document.getElementById('table');
+    table.remove();
+  }
+
+  function createTable(tableData) {
+    var table = document.createElement('table');
+    table.setAttribute("id", "table");
+    var tableBody = document.createElement('tbody');
+    tableBody.setAttribute("id", "tbody")
+  
+    tableData.forEach(function(rowData) {
+      var row = document.createElement('tr');
+  
+      rowData.forEach(function(cellData) {
+        var cell = document.createElement('td');
+        cell.appendChild(document.createTextNode(cellData));
+        row.appendChild(cell);
+      });
+  
+      tableBody.appendChild(row);
+    });
+  
+    table.appendChild(tableBody);
+    document.body.appendChild(table);
+  }
+  
+  
