@@ -1,128 +1,114 @@
-const delay = ms => new Promise(res => setTimeout(res, ms));
-
-const deepCopy = (arr) => {
-  let copy = [];
-  arr.forEach(elem => {
-    if(Array.isArray(elem)){
-      copy.push(deepCopy(elem))
-    }else{
-        copy.push(elem)
-    }
-  })
-  return copy;
-}
-
-function multiply(a, b) {
-  var aNumRows = a.length, aNumCols = a[0].length,
-      bNumRows = b.length, bNumCols = b[0].length,
-      m = new Array(aNumRows);  // initialize array of rows
-  for (var r = 0; r < aNumRows; ++r) {
-    m[r] = new Array(bNumCols); // initialize the current row
-    for (var c = 0; c < bNumCols; ++c) {
-      m[r][c] = 0;             // initialize the current cell
-      for (var i = 0; i < aNumCols; ++i) {
-        m[r][c] += a[r][i] * b[i][c];
-      }
-    }
-  }
-  return m;
-}
-
-var cy = cytoscape({
-    container: document.getElementById('cy'),
-  
-    boxSelectionEnabled: false,
-    autounselectify: true,
-  
-    style: cytoscape.stylesheet()
-      .selector('node')
-        .style({
-          'content': 'data(id)'
-        })
-      .selector('edge')
-        .style({
-          'curve-style': 'bezier',
-          'target-arrow-shape': 'none',
-          'width': 4,
-          'line-color': '#ddd',
-          'target-arrow-color': '#ddd'
-        })
-      .selector('.highlighted')
-        .style({
-          'background-color': '#61bffc',
-          'line-color': '#61bffc',
-          'target-arrow-color': '#61bffc',
-          'transition-property': 'background-color, line-color, target-arrow-color',
-          'transition-duration': '0.5s'
-        }),
-  
-    elements: {
-        nodes: [
-          { data: { id: '0' } },
-          { data: { id: '1' } },
-          { data: { id: '2' } },
-          { data: { id: '3' } },
-          { data: { id: '4' } },
-          { data: { id: '5' } },
-          { data: { id: '6' } },
-          { data: { id: '7' } },
-          { data: { id: '8' } },
-          { data: { id: '9' } },
-        ],
-  
-        edges: [
-          { data: { id: '01', source: '0', target: '1' } },
-          { data: { id: '06', source: '0', target: '6' } },
-          { data: { id: '07', source: '0', target: '7' } },
-          { data: { id: '12', source: '1', target: '2' } },
-          { data: { id: '56', source: '5', target: '6' } },
-          { data: { id: '49', source: '4', target: '9' } },
-          { data: { id: '23', source: '2', target: '3' } },
-          { data: { id: '34', source: '3', target: '4' } },
-          { data: { id: '45', source: '4', target: '5' } },
-          { data: { id: '78', source: '7', target: '8' } },
-          { data: { id: '89', source: '8', target: '9' } },
-        ]
-      },
-  
-    layout: {
-      name: 'breadthfirst',
-      directed: false,
-      roots: '#0',
-      padding: 10
-    }
-  });
+  const delay = ms => new Promise(res => setTimeout(res, ms));
 
   var myDiv = document.getElementById("divId");
-  
-  
+    
   var vertices = cy.nodes();
 
   var originalAdjacencyMatrix = new Array(vertices.length);
-  var bfsMatrix = [];
-  var baseMatrix = [];
-  
-  var isAllOne = true;
-  var i = 0;
-  var verifyAllOne = function(adjacencyMatrix){
-    // myDiv.innerHTML = "Verificando se o grafo é completo...";
-    for (var i = 0; i < vertices.length; i++){
-    // if( i < vertices.length ){
-      vertices[i].addClass('highlighted');
-      for (var j = 0; j < vertices.length; j++){
-        if (isAllOne != false && i!=j){
-          // setTimeout(verifyAllOne, 1000);
-          if (adjacencyMatrix[i][j] != 1){
-            isAllOne = false;
-            // myDiv.innerHTML = "Grafo não é completo!";
-            break;
-          }
-        }
+
+  const deepCopy = (arr) => {
+    let copy = [];
+    arr.forEach(elem => {
+      if(Array.isArray(elem)){
+        copy.push(deepCopy(elem))
+      }else{
+          copy.push(elem)
       }
-    }
+    })
+    return copy;
   }
 
-  
+  function deleteTable(){
+    var table = document.getElementById('table');
+    table.remove();
+  }
+
+  function createTable(tableData) {
+    var table = document.createElement('table');
+    table.setAttribute("id", "table");
+    var tableBody = document.createElement('tbody');
+    tableBody.setAttribute("id", "tbody")
+
+    tableData.forEach(function(rowData) {
+      var row = document.createElement('tr');
+
+      rowData.forEach(function(cellData) {
+        var cell = document.createElement('td');
+        cell.appendChild(document.createTextNode(cellData));
+        row.appendChild(cell);
+      });
+
+      tableBody.appendChild(row);
+    });
+
+    table.appendChild(tableBody);
+    document.body.appendChild(table);
+  }
+
+  var cy = cytoscape({
+      container: document.getElementById('cy'),
+    
+      boxSelectionEnabled: false,
+      autounselectify: true,
+    
+      style: cytoscape.stylesheet()
+        .selector('node')
+          .style({
+            'content': 'data(id)'
+          })
+        .selector('edge')
+          .style({
+            'curve-style': 'bezier',
+            'target-arrow-shape': 'none',
+            'width': 4,
+            'line-color': '#ddd',
+            'target-arrow-color': '#ddd'
+          })
+        .selector('.highlighted')
+          .style({
+            'background-color': '#61bffc',
+            'line-color': '#61bffc',
+            'target-arrow-color': '#61bffc',
+            'transition-property': 'background-color, line-color, target-arrow-color',
+            'transition-duration': '0.5s'
+          }),
+    
+      elements: {
+          nodes: [
+            { data: { id: '0' } },
+            { data: { id: '1' } },
+            { data: { id: '2' } },
+            { data: { id: '3' } },
+            { data: { id: '4' } },
+            { data: { id: '5' } },
+            { data: { id: '6' } },
+            { data: { id: '7' } },
+            { data: { id: '8' } },
+            { data: { id: '9' } },
+          ],
+    
+          edges: [
+            { data: { id: '01', source: '0', target: '1' } },
+            { data: { id: '06', source: '0', target: '6' } },
+            { data: { id: '07', source: '0', target: '7' } },
+            { data: { id: '12', source: '1', target: '2' } },
+            { data: { id: '56', source: '5', target: '6' } },
+            { data: { id: '49', source: '4', target: '9' } },
+            { data: { id: '23', source: '2', target: '3' } },
+            { data: { id: '34', source: '3', target: '4' } },
+            { data: { id: '45', source: '4', target: '5' } },
+            { data: { id: '78', source: '7', target: '8' } },
+            { data: { id: '89', source: '8', target: '9' } },
+          ]
+        },
+    
+      layout: {
+        name: 'breadthfirst',
+        directed: false,
+        roots: '#0',
+        padding: 10
+      }
+  });
 
   async function seidel(adjacencyMatrix){
     console.log("delaying...");
@@ -208,7 +194,6 @@ var cy = cytoscape({
       xMatrix[i] = new Array(vertices.length).fill(0);
     }
 
-    //xMatrix = multiply([returnMatrix], [adjacencyMatrix]);
     for (var r = 0; r < vertices.length; ++r) {
       xMatrix[r] = new Array(vertices.length); // initialize the current row
       for (var c = 0; c < vertices.length; ++c) {
@@ -255,7 +240,6 @@ var cy = cytoscape({
   var start = async function() {
     for (var i = 0; i < vertices.length; i++){
       originalAdjacencyMatrix[i] = new Array(vertices.length).fill(0);
-      // originalAdjacencyMatrix[i][i] = 1;
     }
     
     for (var i = 0; i < vertices.length; i++){
@@ -268,13 +252,11 @@ var cy = cytoscape({
 
     var adjacencyMatrix = [];
     adjacencyMatrix = deepCopy(originalAdjacencyMatrix);
-    // console.log("FINAL: ", seidel(adjacencyMatrix));
     myDiv.innerHTML = "Matriz de adjacencias original:";
     myDiv.style.color = "blue";
     var distanceMatrix = [];
     createTable(originalAdjacencyMatrix);
     distanceMatrix = await seidel(adjacencyMatrix);
-    // myDiv.remove();
     await delay(2000);
     deleteTable();
     createTable(distanceMatrix);
@@ -283,33 +265,5 @@ var cy = cytoscape({
   }
 
   start();
-
-
-  function deleteTable(){
-    var table = document.getElementById('table');
-    table.remove();
-  }
-
-  function createTable(tableData) {
-    var table = document.createElement('table');
-    table.setAttribute("id", "table");
-    var tableBody = document.createElement('tbody');
-    tableBody.setAttribute("id", "tbody")
-  
-    tableData.forEach(function(rowData) {
-      var row = document.createElement('tr');
-  
-      rowData.forEach(function(cellData) {
-        var cell = document.createElement('td');
-        cell.appendChild(document.createTextNode(cellData));
-        row.appendChild(cell);
-      });
-  
-      tableBody.appendChild(row);
-    });
-  
-    table.appendChild(tableBody);
-    document.body.appendChild(table);
-  }
   
   
