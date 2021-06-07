@@ -9,4 +9,4 @@ Ou então, rodar o comando 'python3 -m http.server 8080' na pasta raiz do projet
 
 Na declaração da variável 'cy', temos o campo 'elements'. Neste campo temos 'nodes' e 'edges', que são os vértices e arestas do grafo. Basta alterá-los da forma que quiser.
 
-Obs: Para rodar o servidor local do Python 3, é necessário instalá-lo na sua máquina. A instalação é simples e pode ser feita pelo site do Python.
+Obs: Para rodar o servidor local do Python 3, é necessário instalá-lo na sua máquina. A instalação é simples e pode ser feita pelo site do Python, embora muitos sistemas já venham com ele instalado. Para verificar se seu sistema possui o python3, basta executar 'python3' no terminal.
